@@ -26,7 +26,7 @@ def tokenize(rstr, window_size=35):
             
 def generate_batch_data(words, clipping_window_size=35):
     # generate number of words for a string
-    num_words = np.random.randint(2, 5)
+    num_words = np.random.randint(2, 6)
     rand_idx = np.random.choice(np.arange(np.shape(words)[0]), num_words)
     words_ = words[rand_idx]
     # randomly insert 'marco': Data Augmentation
@@ -39,12 +39,14 @@ def generate_batch_data(words, clipping_window_size=35):
     elif p < 0.7:
         words_ = np.append(words_, 'ma')
         words_ = np.append(words_, 'rco')
-
     np.random.shuffle(words_)
     rstr = ' '.join(words_)
     rstr = rstr[:clipping_window_size-2]
     data = tokenize(rstr, clipping_window_size)
-    label = (rstr.find('marco') != -1)
+    if (rstr.find('marco') != -1):
+        label = 1
+    else:
+        label = 0
     return data, label
 
 class BatchLoader:
@@ -71,6 +73,8 @@ class BatchLoader:
 
         print(data_X.shape)
         print(data_y.shape)
+
+        print(data_y)
 
         self.data_train_X, self.data_test_X, self.data_train_y, self.data_test_y = train_test_split(data_X, data_y, test_size=0.20)
         self.num_train_examples = np.shape(self.data_train_X)[0]

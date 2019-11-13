@@ -22,7 +22,7 @@ class RNNEncoder(nn.Module):
         for i in range(WINDOW_SIZE):
             x_in = cat([x[:, i, :], hidden_state], dim=1)
             out = self.W(x_in)
-            out = F.relu(out, inplace=True)
+            out = F.relu(out)
             hidden_state = out
         return out
 
@@ -46,11 +46,12 @@ class Seq2SeqModel(nn.Module):
         return self.decoder(self.encoder(self.embedding(x)))
 
 def trainval(model, data_loader):
-    EPOCHS = 20
-    train_batch_size = 32
-    test_batch_size = 32
+    EPOCHS = 30
+    train_batch_size = 64
+    test_batch_size = 64
 
     criterion = nn.CrossEntropyLoss()
+    #optimizer = torch.optim.Adam(model.parameters(), lr=5e-4)
     optimizer = torch.optim.RMSprop(model.parameters(), lr=1e-4, eps=1e-8, momentum=0.9, weight_decay=1e-4)
 
     global_steps = 0
@@ -115,14 +116,15 @@ def inference(model, inputs, targets):
 
 def main():
     np.random.seed(233)
+    torch.manual_seed(233)
     data_loader = BatchLoader(10000)
     model = Seq2SeqModel(10, NUM_CLASSES, WINDOW_SIZE)
     trainval(model, data_loader)
 
     # Should print 'polo '
-    inference(model, "nor macro I", "polo ")
-    inference(model, "macro nor I", "polo ")
-    inference(model, "nor I macro", "polo ")
+    inference(model, "nor marco I", "polo ")
+    inference(model, "marco nor I", "polo ")
+    inference(model, "nor I marco", "polo ")
     
     # Should print ' '
     inference(model, "nor I neither", " ")
